@@ -12,7 +12,18 @@ background-color: white;
 &.dragging {
   background-color: lightgreen;
 }
+display:flex;
+align-items:center;
 `;
+
+const Handle = styled.div`
+width:20px;
+height:20px;
+background-color:orange;
+border-radius:4px;
+margin-right:8px;
+cursor:grab;
+`
 
 const Task = ({ task, index }) => {
     return (
@@ -20,10 +31,11 @@ const Task = ({ task, index }) => {
             {(provided, snapshot) => (
                 <Container
                     {...provided.draggableProps}
-                    {...provided.dragHandleProps}
+
                     ref={provided.innerRef}
                     className={snapshot.isDragging ? 'dragging' : ''}
                 >
+                    <Handle {...provided.dragHandleProps} />
                     {task.content}
                 </Container>
             )}
