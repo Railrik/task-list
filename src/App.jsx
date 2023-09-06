@@ -25,7 +25,23 @@ const App = () => {
 
   }, [initialDatas]);
 
+  const onDragStart = () => {
+    // document.body.style.color = 'orange';
+    // document.body.style.transition = 'background-color 0.4 ease';
+  }
+
+  const onDragUpdate = (update) => {
+    // const { destination } = update;
+    // const opacity = destination
+    //   ? destination.index / Object.keys(initialDatas.tasks).length
+    //   : 0;
+    // document.body.style.backgroundColor = `rgba(153,141,215,${opacity})`;
+  }
+
   const onDragEnd = (result) => {
+    document.body.style.color = 'inherit';
+    document.body.style.backgroundColor = 'inherit';
+
     const { destination, source, draggableId } = result;
 
     if (!destination) {
@@ -67,7 +83,7 @@ const App = () => {
   };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       {/* Mapper sur les colonnes pour afficher chaque colonne et ses tâches */}
       {columns.map((data) => {
         {/* Afficher les données en fonction du nouvel ordre onDragEnd */ }
