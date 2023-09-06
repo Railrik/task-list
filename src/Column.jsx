@@ -14,6 +14,11 @@ const Title = styled.h3`
 `;
 const TaskList = styled.div`
   padding: 8px;
+  background-color: white;
+  transition: background-color 0.4s ease;
+&.dragging-over {
+  background-color: skyblue;
+}
 `;
 
 const Column = ({ column, tasks }) => {
@@ -22,10 +27,12 @@ const Column = ({ column, tasks }) => {
             <Title>{column.title}</Title>
             {/* Crée une zone de dépôt pour les tâches */}
             <Droppable droppableId={column.id}>
-                {provided => (
+                {(provided, snapshot) => (
                     <TaskList
                         ref={provided.innerRef}
                         {...provided.droppableProps}
+                        className={snapshot.isDraggingOver ? 'dragging-over' : ''}
+
                     >
                         {/* Mappe les tâches pour les afficher dans la colonne */}
                         {tasks.map((task, index) => (
