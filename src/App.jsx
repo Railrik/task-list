@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import 'reset-css';
 import { DragDropContext } from 'react-beautiful-dnd';
 import initialData from './data/inital-data';
-import Column from './column';
+import Column from './Column';
 
 const App = () => {
   // État initial de l'application
