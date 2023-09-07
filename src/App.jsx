@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import 'reset-css';
 import styled from 'styled-components';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -149,4 +149,4 @@ const App = () => {
   );
 }
 
-export default App;
+export default memo(App);
