@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import 'reset-css';
+import styled from 'styled-components';
 import { DragDropContext } from 'react-beautiful-dnd';
 import initialData from './data/inital-data';
 import Column from './Column';
+
+const Container = styled.div`
+  display:flex;
+`;
 
 const App = () => {
   // État initial de l'application
@@ -55,41 +60,75 @@ const App = () => {
     }
 
     // Trouver la colonne mise à jour en fonction de la source de glisser-déposer
-    const updatedColumn = columns.find((col) => col.column.id === source.droppableId);
+    const start = columns.find((col) => col.column.id === source.droppableId);
+    const finish = columns.find((col) => col.column.id === destination.droppableId);
 
-    // Créer un nouvel ensemble de tâches avec l'ordre mis à jour
-    const newTaskIds = Array.from(updatedColumn.column.taskIds)
-    newTaskIds.splice(source.index, 1);
-    newTaskIds.splice(destination.index, 0, draggableId);
+    if (start === finish) {
+      // Créer un nouvel ensemble de tâches avec l'ordre mis à jour
+      const newTaskIds = Array.from(start.column.taskIds)
+      newTaskIds.splice(source.index, 1);
+      newTaskIds.splice(destination.index, 0, draggableId);
 
-    // Créer une nouvelle colonne mise à jour
-    const newColumn = {
-      ...updatedColumn,
-      column: {
-        ...updatedColumn.column,
-        taskIds: newTaskIds,
-      },
+      // Créer une nouvelle colonne mise à jour
+      const newColumn = {
+        ...start,
+        column: {
+          ...start.column,
+          taskIds: newTaskIds,
+        },
+      };
+
+      // Mettre à jour le tableau des colonnes
+      const newColumns = columns.map((col) => {
+        if (col.column.id === newColumn.column.id) {
+          return newColumn;
+        }
+        return col;
+      });
+
+      setColumns(newColumns)
+      return;
+    }
+
+    //déplacer les taches d'une liste à l'autre
+    const startTaskIds = Array.from(start.column.taskIds);
+    startTaskIds.splice(source.index, 1);
+    const newStart = {
+      ...start,
+      taskIds: startTaskIds,
     };
 
-    // Mettre à jour le tableau des colonnes
-    const newColumns = columns.map((col) => {
-      if (col.column.id === newColumn.column.id) {
-        return newColumn;
+    const finishTaskIds = Array.from(finish.column.taskIds);
+    finishTaskIds.splice(destination.index, 0, draggableId);
+    const newFinish = {
+      ...finish,
+      taskIds: finishTaskIds,
+    };
+
+    // Mettre à jour les colonnes
+    const updatedColumns = columns.map((col) => {
+      if (col.column.id === start.column.id) {
+        return { ...col, column: { ...col.column, taskIds: startTaskIds } };
+      }
+      if (col.column.id === finish.column.id) {
+        return { ...col, column: { ...col.column, taskIds: finishTaskIds } };
       }
       return col;
     });
+    setColumns(updatedColumns);
 
-    setColumns(newColumns)
   };
 
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
-      {/* Mapper sur les colonnes pour afficher chaque colonne et ses tâches */}
-      {columns.map((data) => {
-        {/* Afficher les données en fonction du nouvel ordre onDragEnd */ }
-        const sortedTasks = data.column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
-        return <Column key={data.column.id} column={data.column} tasks={sortedTasks} />;
-      })}
+      <Container>
+        {/* Mapper sur les colonnes pour afficher chaque colonne et ses tâches */}
+        {columns.map((data) => {
+          {/* Afficher les données en fonction du nouvel ordre onDragEnd */ }
+          const sortedTasks = data.column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
+          return <Column key={data.column.id} column={data.column} tasks={sortedTasks} />;
+        })}
+      </Container>
     </DragDropContext>
   );
 }
