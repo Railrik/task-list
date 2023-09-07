@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import 'reset-css';
 import styled from 'styled-components';
-import { DragDropContext } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import initialData from './data/inital-data';
 import Column from './Column';
 
@@ -13,13 +13,10 @@ const App = () => {
   // État initial de l'application
   const [initialDatas, setInitialDatas] = useState(initialData);
   const [columns, setColumns] = useState([]); // Utilisation d'un tableau pour stocker les colonnes et les tâches
-
+  const [columnOrder, setColumnOrder] = useState(initialData.columnOrder);
   useEffect(() => {
-    // Utilisation de Object.keys() pour obtenir un tableau d'identifiants de colonnes
-    const columnIds = Object.keys(initialDatas.columns);
-
-    // Map sur les identifiants de colonnes et crée un tableau d'objets contenant des colonnes et des tâches
-    const columnData = columnIds.map((columnId) => {
+    // Map sur les identifiants de colonnes dans l'ordre spécifié par columnOrder
+    const columnData = columnOrder.map((columnId) => {
       const column = initialDatas.columns[columnId];
       const tasks = column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
       return { column, tasks };
@@ -27,8 +24,7 @@ const App = () => {
 
     // Mettre à jour l'état des colonnes avec le tableau de données de colonnes
     setColumns(columnData);
-
-  }, [initialDatas]);
+  }, [initialDatas, columnOrder]);
 
   const onDragStart = () => {
     // document.body.style.color = 'orange';
@@ -47,7 +43,7 @@ const App = () => {
     document.body.style.color = 'inherit';
     document.body.style.backgroundColor = 'inherit';
 
-    const { destination, source, draggableId } = result;
+    const { destination, source, draggableId, type } = result;
 
     if (!destination) {
       return;
@@ -58,6 +54,18 @@ const App = () => {
     ) {
       return;
     }
+
+    if (type === 'column') {
+      const newColumnOrder = Array.from(columnOrder);
+      newColumnOrder.splice(source.index, 1);
+      newColumnOrder.splice(destination.index, 0, draggableId);
+
+      setColumnOrder(newColumnOrder);
+
+
+      return;
+    }
+
 
     // Trouver la colonne mise à jour en fonction de la source de glisser-déposer
     const start = columns.find((col) => col.column.id === source.droppableId);
@@ -110,17 +118,24 @@ const App = () => {
     setColumns(updatedColumns);
 
   };
-
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
-      <Container>
-        {/* Mapper sur les colonnes pour afficher chaque colonne et ses tâches */}
-        {columns.map((data) => {
-          {/* Afficher les données en fonction du nouvel ordre onDragEnd */ }
-          const sortedTasks = data.column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
-          return <Column key={data.column.id} column={data.column} tasks={sortedTasks} />;
-        })}
-      </Container>
+      <Droppable droppableId="all-columns" direction="horizontal" type="column" >
+        {provided => (
+          <Container
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+          >
+            {/* Mapper sur les colonnes pour afficher chaque colonne et ses tâches */}
+            {columns.map((data, index) => {
+              {/* Afficher les données en fonction du nouvel ordre onDragEnd */ }
+              const sortedTasks = data.column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
+              return <Column key={data.column.id} column={data.column} tasks={sortedTasks} index={index} />;
+            })}
+            {provided.placeholder}
+          </Container>
+        )}
+      </Droppable>
     </DragDropContext>
   );
 }
