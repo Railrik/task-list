@@ -93,17 +93,9 @@ const App = () => {
     //déplacer les taches d'une liste à l'autre
     const startTaskIds = Array.from(start.column.taskIds);
     startTaskIds.splice(source.index, 1);
-    const newStart = {
-      ...start,
-      taskIds: startTaskIds,
-    };
 
     const finishTaskIds = Array.from(finish.column.taskIds);
     finishTaskIds.splice(destination.index, 0, draggableId);
-    const newFinish = {
-      ...finish,
-      taskIds: finishTaskIds,
-    };
 
     // Mettre à jour les colonnes
     const updatedColumns = columns.map((col) => {
