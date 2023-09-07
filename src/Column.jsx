@@ -8,6 +8,9 @@ const Container = styled.div`
   margin: 8px;
   border: 1px solid lightgrey;
   border-radius: 2px;
+  width:33.333%;
+  display:flex;
+  flex-direction:column;
 `;
 const Title = styled.h3`
   padding: 8px;
@@ -19,31 +22,32 @@ const TaskList = styled.div`
 &.dragging-over {
   background-color: skyblue;
 }
+flex-grow:1;
 `;
 
 const Column = ({ column, tasks }) => {
-    return (
-        <Container>
-            <Title>{column.title}</Title>
-            {/* Crée une zone de dépôt pour les tâches */}
-            <Droppable droppableId={column.id}>
-                {(provided, snapshot) => (
-                    <TaskList
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={snapshot.isDraggingOver ? 'dragging-over' : ''}
+  return (
+    <Container>
+      <Title>{column.title}</Title>
+      {/* Crée une zone de dépôt pour les tâches */}
+      <Droppable droppableId={column.id}>
+        {(provided, snapshot) => (
+          <TaskList
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={snapshot.isDraggingOver ? 'dragging-over' : ''}
 
-                    >
-                        {/* Mappe les tâches pour les afficher dans la colonne */}
-                        {tasks.map((task, index) => (
-                            <Task key={task.id} task={task} index={index} />
-                        ))}
-                        {provided.placeholder} {/* Espace réservé pour les tâches en cours de glisser-déposer */}
-                    </TaskList>
-                )}
-            </Droppable>
-        </Container>
-    );
+          >
+            {/* Mappe les tâches pour les afficher dans la colonne */}
+            {tasks.map((task, index) => (
+              <Task key={task.id} task={task} index={index} />
+            ))}
+            {provided.placeholder} {/* Espace réservé pour les tâches en cours de glisser-déposer */}
+          </TaskList>
+        )}
+      </Droppable>
+    </Container>
+  );
 };
 
 export default Column;
