@@ -15,8 +15,11 @@ const App = () => {
   const [columns, setColumns] = useState([]); // Utilisation d'un tableau pour stocker les colonnes et les tâches
   const [columnOrder, setColumnOrder] = useState(initialData.columnOrder);
   useEffect(() => {
-    // Map sur les identifiants de colonnes dans l'ordre spécifié par columnOrder
-    const columnData = columnOrder.map((columnId) => {
+    // Utilisation de Object.keys() pour obtenir un tableau d'identifiants de colonnes
+    const columnIds = Object.keys(initialDatas.columns);
+
+    // Map sur les identifiants de colonnes et crée un tableau d'objets contenant des colonnes et des tâches
+    const columnData = columnIds.map((columnId) => {
       const column = initialDatas.columns[columnId];
       const tasks = column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
       return { column, tasks };
@@ -24,7 +27,8 @@ const App = () => {
 
     // Mettre à jour l'état des colonnes avec le tableau de données de colonnes
     setColumns(columnData);
-  }, [initialDatas, columnOrder]);
+
+  }, [initialDatas]);
 
   const onDragStart = () => {
     // document.body.style.color = 'orange';
@@ -62,7 +66,12 @@ const App = () => {
 
       setColumnOrder(newColumnOrder);
 
-
+      // Mettre à jour les colonnes en fonction de la nouvelle commande de colonnes
+      const newColumnsData = newColumnOrder.map((columnId) => {
+        const column = columns.find((col) => col.column.id === columnId);
+        return { ...column, tasks: column.tasks };
+      });
+      setColumns(newColumnsData);
       return;
     }
 
