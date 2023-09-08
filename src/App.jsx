@@ -1,12 +1,15 @@
 import React, { memo, useEffect, useState } from 'react';
 import 'reset-css';
 import styled from 'styled-components';
+import './global.css';
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import initialData from './data/inital-data';
 import Column from './Column';
 
 const Container = styled.div`
   display:flex;
+  flex-wrap:wrap;
+  justify-content: center;
 `;
 
 const App = () => {
@@ -31,7 +34,7 @@ const App = () => {
   }, [initialDatas]);
 
   const onDragStart = () => {
-    // document.body.style.color = 'orange';
+    // document.body.style.color = '#4A919E';
     // document.body.style.transition = 'background-color 0.4 ease';
   }
 
@@ -139,7 +142,12 @@ const App = () => {
             {columns.map((data, index) => {
               {/* Afficher les données en fonction du nouvel ordre onDragEnd */ }
               const sortedTasks = data.column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
-              return <Column key={data.column.id} column={data.column} tasks={sortedTasks} index={index} />;
+              return <Column
+                key={data.column.id}
+                column={data.column}
+                tasks={sortedTasks}
+                index={index}
+              />;
             })}
             {provided.placeholder}
           </Container>
