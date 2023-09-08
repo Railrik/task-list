@@ -17,6 +17,7 @@ const App = () => {
   const [initialDatas, setInitialDatas] = useState(initialData);
   const [columns, setColumns] = useState([]); // Utilisation d'un tableau pour stocker les colonnes et les tâches
   const [columnOrder, setColumnOrder] = useState(initialData.columnOrder);
+
   useEffect(() => {
     // Utilisation de Object.keys() pour obtenir un tableau d'identifiants de colonnes
     const columnIds = Object.keys(initialDatas.columns);
@@ -34,12 +35,39 @@ const App = () => {
   }, [initialDatas]);
 
   const onDragStart = () => {
-    // document.body.style.color = '#4A919E';
-    // document.body.style.transition = 'background-color 0.4 ease';
+    //document.body.style.backgroundColor = '#4A919E';
+    //document.body.style.transition = 'background-color 0.4 ease';
   }
 
   const onDragUpdate = (update) => {
-    // const { destination } = update;
+    const { source, destination, type } = update;
+    if (type === 'task') {
+      if (!destination) {
+        const columnElement = document.querySelector(`[data-rbd-droppable-id="${source.droppableId}"]`);
+        if (columnElement) {
+          columnElement.style.backgroundColor = '';
+        }
+        return;
+      }
+
+      if (destination) {
+        if (
+          destination.droppableId !== source.droppableId
+        ) {
+          const columnElement = document.querySelector(`[data-rbd-droppable-id="${source.droppableId}"]`);
+          if (columnElement) {
+            columnElement.style.backgroundColor = '#EBACAE';
+          }
+        } else {
+          const columnElement = document.querySelector(`[data-rbd-droppable-id="${source.droppableId}"]`);
+          if (columnElement) {
+            columnElement.style.backgroundColor = '#BED3C3';
+          }
+        }
+      }
+    }
+
+
     // const opacity = destination
     //   ? destination.index / Object.keys(initialDatas.tasks).length
     //   : 0;
@@ -53,13 +81,26 @@ const App = () => {
     const { destination, source, draggableId, type } = result;
 
     if (!destination) {
+      const columnElement = document.querySelector(`[data-rbd-droppable-id="${source.droppableId}"]`);
+      if (columnElement) {
+        columnElement.style.backgroundColor = '';
+      }
       return;
     }
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index
     ) {
+      const columnElement = document.querySelector(`[data-rbd-droppable-id="${source.droppableId}"]`);
+      if (columnElement) {
+        columnElement.style.backgroundColor = '';
+      }
       return;
+    }
+
+    const columnElement = document.querySelector(`[data-rbd-droppable-id="${source.droppableId}"]`);
+    if (columnElement) {
+      columnElement.style.backgroundColor = '';
     }
 
     if (type === 'column') {
@@ -77,7 +118,6 @@ const App = () => {
       setColumns(newColumnsData);
       return;
     }
-
 
     // Trouver la colonne mise à jour en fonction de la source de glisser-déposer
     const start = columns.find((col) => col.column.id === source.droppableId);

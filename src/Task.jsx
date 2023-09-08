@@ -10,7 +10,7 @@ padding : 1rem;
     border-width: 2px; /* Augmentez la largeur de la bordure en survolant */
   }
 &.dragging {
-  background-color: #EBACAE;
+  background-color: #ebdfac;
 }
 `;
 

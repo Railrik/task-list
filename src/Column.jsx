@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import styled from 'styled-components'; // Importe styled-components pour le stylage
 import { Droppable, Draggable } from 'react-beautiful-dnd'; // Importe Droppable de react-beautiful-dnd pour la gestion du glisser-déposer
 import Task from './Task';
