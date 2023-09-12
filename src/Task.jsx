@@ -29,10 +29,9 @@ const TaskContent = styled.div`
     font-size: 2rem;
     color: #212E53;
     transform: scale(1);
-    transition: color 0.4s ease, transform 0.4s ease;
+    transition: transform 0.1s ease;
     &:hover {
-        color: #212E53;
-        transform: scale(1.1); /* Applique un effet de zoom au survol */
+        transform: scale(1.1);
       }
     &.dragging {
         color:white;
@@ -67,21 +66,21 @@ bottom: -15px;
 & i {
     font-size:1rem;
     margin-right:.1rem;
-    transition: transform 0.4s ease;
+    transition: transform 0.1s ease;
     transform: scale(1);
 }
 & i.fa-pen{
     color : #4A919E;
     margin-right:.5rem;
     &.dragging{
-        transition: transform 0.4s ease;
+        transition: transform 0.1s ease;
         transform: scale(0);
     }
 }
 & i.fa-trash{
     color : #CE6A6B;
     &.dragging{
-        transition: transform 0.4s ease;
+        transition: transform 0.1s ease;
         transform: scale(0);
     }
 }
