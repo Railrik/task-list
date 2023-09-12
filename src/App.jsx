@@ -16,23 +16,16 @@ const App = () => {
   // État initial de l'application
   const [initialDatas, setInitialDatas] = useState(initialData);
   const [columns, setColumns] = useState([]); // Utilisation d'un tableau pour stocker les colonnes et les tâches
-  const [columnOrder, setColumnOrder] = useState(initialData.columnOrder);
+  const [columnOrder, setColumnOrder] = useState(initialDatas.columnOrder);
 
   useEffect(() => {
-    // Utilisation de Object.keys() pour obtenir un tableau d'identifiants de colonnes
-    const columnIds = Object.keys(initialDatas.columns);
-
-    // Map sur les identifiants de colonnes et crée un tableau d'objets contenant des colonnes et des tâches
-    const columnData = columnIds.map((columnId) => {
+    const columnData = columnOrder.map((columnId) => {
       const column = initialDatas.columns[columnId];
       const tasks = column.taskIds.map((taskId) => initialDatas.tasks[taskId]);
       return { column, tasks };
     });
-
-    // Mettre à jour l'état des colonnes avec le tableau de données de colonnes
     setColumns(columnData);
-
-  }, [initialDatas]);
+  }, [columnOrder, initialDatas]);
 
   const onDragStart = () => {
     //document.body.style.backgroundColor = '#4A919E';
@@ -129,19 +122,25 @@ const App = () => {
       newTaskIds.splice(source.index, 1);
       newTaskIds.splice(destination.index, 0, draggableId);
 
-      // Créer une nouvelle colonne mise à jour
-      const newColumn = {
+      // Tri des tâches en fonction de newTaskIds
+      const newStartTasks = newTaskIds.map((taskId) =>
+        initialDatas.tasks[taskId]
+      );
+
+      // Mettre à jour la colonne de départ avec les nouvelles tâches et les nouvelles taskIds
+      const newStartColumn = {
         ...start,
         column: {
           ...start.column,
           taskIds: newTaskIds,
         },
+        tasks: newStartTasks,
       };
 
       // Mettre à jour le tableau des colonnes
       const newColumns = columns.map((col) => {
-        if (col.column.id === newColumn.column.id) {
-          return newColumn;
+        if (col.column.id === newStartColumn.column.id) {
+          return newStartColumn;
         }
         return col;
       });
@@ -150,26 +149,142 @@ const App = () => {
       return;
     }
 
-    //déplacer les taches d'une liste à l'autre
+    // if (start === finish) {
+    //   // Créer un nouvel ensemble de tâches avec l'ordre mis à jour
+    //   const newTaskIds = Array.from(start.column.taskIds)
+    //   newTaskIds.splice(source.index, 1);
+    //   newTaskIds.splice(destination.index, 0, draggableId);
+
+
+    //   // Mettre à jour la colonne de départ avec les nouvelles taskIds
+    //   const removedTaskId = start.column.taskIds[source.index];
+    //   const removedTask = initialDatas.tasks[removedTaskId];
+
+    //   // Filtrer les tâches de la colonne de départ pour exclure removedTask
+    //   const newStartTasks = newTaskIds.map((taskId) => {
+    //     const task = initialData.tasks[taskId];
+    //     return task;
+    //   });
+
+    //   // Mettre à jour la colonne de départ avec les nouvelles tâches et les nouvelles taskIds
+    //   const newStartColumn = {
+    //     ...start,
+    //     column: {
+    //       ...start.column,
+    //       taskIds: newTaskIds,
+    //     },
+    //   };
+    //   // Mettre à jour le tableau des colonnes
+    //   const newColumns = columns.map((col) => {
+    //     if (col.column.id === newStartColumn.column.id) {
+    //       return newStartColumn;
+    //     }
+    //     return col;
+    //   });
+    //   setColumns(newColumns)
+
+    //   // const modifiedData = {
+    //   //   ...initialDatas,
+    //   //   columns: {
+    //   //     ...initialDatas.columns,
+    //   //     [start.column.id]: {
+    //   //       ...start.column,
+    //   //       taskIds: newTaskIds,
+    //   //     },
+    //   //   },
+    //   // };
+
+    //   // console.log(initialDatas);
+    //   // setInitialDatas(modifiedData)
+    //   // console.log(modifiedData);
+    // }
+
+    // Déplacer les tâches d'une liste à l'autre
     const startTaskIds = Array.from(start.column.taskIds);
     startTaskIds.splice(source.index, 1);
 
     const finishTaskIds = Array.from(finish.column.taskIds);
     finishTaskIds.splice(destination.index, 0, draggableId);
 
-    // Mettre à jour les colonnes
-    const updatedColumns = columns.map((col) => {
-      if (col.column.id === start.column.id) {
-        return { ...col, column: { ...col.column, taskIds: startTaskIds } };
+    // Mettre à jour la colonne de départ avec les nouvelles taskIds
+    const removedTaskId = start.column.taskIds[source.index];
+    const removedTask = initialDatas.tasks[removedTaskId];
+
+    // Filtrer les tâches de la colonne de départ pour exclure removedTask
+    const newStartTasks = start.column.taskIds
+      .filter(taskId => taskId !== removedTaskId)
+      .map(taskId => initialDatas.tasks[taskId]);
+
+
+
+    // Mettre à jour la colonne de départ avec les nouvelles taskIds et tâches
+    const newStartColumn = {
+      ...start,
+      column: {
+        ...start.column,
+        taskIds: startTaskIds,
+      },
+      tasks: newStartTasks,
+    };
+
+    // Mettre à jour la colonne d'arrivée avec les nouvelles taskIds et ajouter la tâche retirée
+    const newFinishColumn = {
+      ...finish,
+      column: {
+        ...finish.column,
+        taskIds: finishTaskIds,
+      },
+      tasks: [...finish.tasks, removedTask],
+    };
+
+    // Mettre à jour le tableau des colonnes
+    const newColumns = columns.map((col) => {
+      if (col.column.id === newStartColumn.column.id) {
+        return newStartColumn;
       }
-      if (col.column.id === finish.column.id) {
-        return { ...col, column: { ...col.column, taskIds: finishTaskIds } };
+      if (col.column.id === newFinishColumn.column.id) {
+        return newFinishColumn;
       }
       return col;
     });
-    setColumns(updatedColumns);
+    setColumns(newColumns);
 
+    const modifiedData = {
+      ...initialDatas,
+      columns: newColumns.reduce((acc, column) => {
+        acc[column.column.id] = column.column;
+        return acc;
+      }, {}),
+    };
+    setInitialDatas(modifiedData)
   };
+
+  const handleAddNewTask = (columnId) => {
+    // Clônez l'état actuel des données initiales ou modifiées
+    const newModifiedDatas = { ...initialDatas };
+    newModifiedDatas.columnOrder = columnOrder;
+
+    // Générez un nouvel ID pour la tâche
+    const newTaskId = `task-${Object.keys(newModifiedDatas.tasks).length + 1}`;
+
+    // Créez une nouvelle tâche
+    const newTask = {
+      id: newTaskId,
+      title: 'Nouvelle tâche' + Math.random(0, 100),
+      content: 'Description de la nouvelle tâche',
+    };
+
+    // Ajoutez la nouvelle tâche à la liste des tâches
+    newModifiedDatas.tasks[newTaskId] = newTask;
+
+    // Ajoutez également l'ID de la nouvelle tâche à la liste des tâches de la colonne spécifiée
+    newModifiedDatas.columns[columnId].taskIds.push(newTaskId);
+
+    // Mettez à jour l'état de l'application avec les nouvelles données
+    setInitialDatas(newModifiedDatas);
+  };
+
+
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <Droppable droppableId="all-columns" direction="horizontal" type="column" >
@@ -187,6 +302,7 @@ const App = () => {
                 column={data.column}
                 tasks={sortedTasks}
                 index={index}
+                handleAddNewTask={handleAddNewTask}
               />;
             })}
             {provided.placeholder}

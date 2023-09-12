@@ -96,7 +96,8 @@ line-height: 60px;
 font-size: 2.5rem;
 `
 
-const Column = ({ column, tasks, index }) => {
+const Column = ({ column, tasks, index, handleAddNewTask }) => {
+
   return (
     <Draggable draggableId={column.id} index={index}>
       {(provided, snapshot) => (
@@ -112,7 +113,7 @@ const Column = ({ column, tasks, index }) => {
             </HeaderIcons>
             <Title><TitleH2>{column.title}</TitleH2></Title>
             <More>
-              <IconPlus><i className="fa-solid fa-plus" /></IconPlus>
+              <IconPlus onClick={() => handleAddNewTask(column.id)}><i className="fa-solid fa-plus" /></IconPlus>
             </More>
           </Header>
           {/* Crée une zone de dépôt pour les tâches */}
